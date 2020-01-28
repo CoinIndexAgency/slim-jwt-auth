@@ -80,6 +80,7 @@ final class JwtAuthentication implements MiddlewareInterface
         "header" => "Authorization",
         "regexp" => "/Bearer\s+(.*)$/i",
         "cookie" => "token",
+        "param"  => "token",
         "attribute" => "token",
         "path" => "/",
         "ignore" => null,
@@ -259,6 +260,18 @@ final class JwtAuthentication implements MiddlewareInterface
             }
             return $cookieParams[$this->options["cookie"]];
         };
+        
+        /* Token not found in header and cookie, try a request param */ 
+        $queryParams = $request->getQueryParams();
+        
+        if (isset($queryParams[$this->options["param"]])) {
+            $this->log(LogLevel::DEBUG, "Using token from query params");
+            if (preg_match($this->options["regexp"], $queryParams[$this->options["param"]], $matches)) {
+                return $matches[1];
+            }
+            return  $queryParams[$this->options["param"]];
+        };
+        
 
         /* If everything fails log and throw. */
         $this->log(LogLevel::WARNING, "Token not found");
