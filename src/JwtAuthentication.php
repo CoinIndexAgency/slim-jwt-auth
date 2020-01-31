@@ -84,6 +84,7 @@ final class JwtAuthentication implements MiddlewareInterface
         "attribute" => "token",
         "path" => "/",
         "ignore" => null,
+        "preauth" => null,
         "before" => null,
         "after" => null,
         "error" => null
@@ -134,6 +135,16 @@ final class JwtAuthentication implements MiddlewareInterface
                 throw new RuntimeException($message);
             }
         }
+        
+        /* Modify $request before calling next middleware. */
+        if (is_callable($this->options["preauth"])) {
+            $response = (new ResponseFactory)->createResponse(200);
+            $beforeRequest = $this->options["preauth"]($request, $params);
+            if ($beforeRequest instanceof ServerRequestInterface) {
+                $request = $beforeRequest;
+            }
+        }
+        
 
         /* If token cannot be found or decoded return with 401 Unauthorized. */
         try {
