@@ -255,10 +255,10 @@ final class JwtAuthentication implements MiddlewareInterface
         $header = $request->getHeaderLine($this->options["header"]);
 
         if (false === empty($header)) {
-            if (preg_match($this->options["regexp"], $header, $matches)) {
+            //if (preg_match($this->options["regexp"], $header, $matches)) {
                 $this->log(LogLevel::DEBUG, "Using token from request header");
-                return $matches[1];
-            }
+                return $header; //$matches[1];
+           // }
         }
 
         /* Token not found in header try a cookie. */
